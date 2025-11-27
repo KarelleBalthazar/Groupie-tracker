@@ -4,8 +4,11 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"strconv"
+	"strings"
 
 	"groupie_tracker/internal/api"
+	"groupie_tracker/internal/models"
 )
 
 // On charge tous les templates une seule fois pour tout le package handlers.
@@ -20,7 +23,7 @@ func notFound(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// Home gère la page d'accueil : liste de tous les artistes.
+// Home gère la page d'accueil : liste de tous les artistes avec filtres.
 func Home(w http.ResponseWriter, r *http.Request) {
 	// On ne veut que "/"
 	if r.URL.Path != "/" {
@@ -36,8 +39,71 @@ func Home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// =========================
+	//       LECTURE FILTRES
+	// =========================
+	q := r.URL.Query()
+
+	nameFilter := strings.ToLower(strings.TrimSpace(q.Get("name")))
+	yearStr := strings.TrimSpace(q.Get("year"))
+	membersStr := strings.TrimSpace(q.Get("members"))
+	soloOnly := q.Get("solo_only") == "on" || q.Get("solo_only") == "true"
+
+	var yearFilter, membersCount int
+
+	if yearStr != "" {
+		if v, err := strconv.Atoi(yearStr); err == nil {
+			yearFilter = v
+		}
+	}
+
+	if membersStr != "" {
+		if v, err := strconv.Atoi(membersStr); err == nil {
+			membersCount = v
+		}
+	}
+
+	// =========================
+	//      APPLICATION FILTRES
+	// =========================
+	var filtered []models.Artist
+
+	for _, a := range artists {
+		// Filtre par nom (contient, insensible à la casse)
+		if nameFilter != "" && !strings.Contains(strings.ToLower(a.Name), nameFilter) {
+			continue
+		}
+
+		// Année de création exacte
+		if yearFilter != 0 && a.CreationDate != yearFilter {
+			continue
+		}
+
+		// Nombre de membres exact
+		if membersCount != 0 && len(a.Members) != membersCount {
+			continue
+		}
+
+		// Uniquement solo
+		if soloOnly && len(a.Members) != 1 {
+			continue
+		}
+
+		filtered = append(filtered, a)
+	}
+
+	// Si aucun filtre saisi -> on affiche tout
+	noFilter := nameFilter == "" && yearFilter == 0 && membersCount == 0 && !soloOnly
+
+	var data any
+	if noFilter {
+		data = artists
+	} else {
+		data = filtered
+	}
+
 	// Affichage avec le template home.html
-	if err := templates.ExecuteTemplate(w, "home.html", artists); err != nil {
+	if err := templates.ExecuteTemplate(w, "home.html", data); err != nil {
 		log.Println("Erreur template home:", err)
 		http.Error(w, "Erreur d'affichage de la page d'accueil", http.StatusInternalServerError)
 		return

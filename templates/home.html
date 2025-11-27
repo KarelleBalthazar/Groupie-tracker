@@ -2,25 +2,263 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Groupie Tracker</title>
+    <title>Groupie Tracker – Artistes</title>
+    <style>
+        body {
+            background: #0b0b0b;
+            color: #f5f5f5;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px 50px;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            font-size: 36px;
+        }
+
+        /* Zone filtres */
+
+        .filters-card {
+            background: #151515;
+            border: 1px solid #262626;
+            border-radius: 12px;
+            padding: 16px 18px;
+            margin-bottom: 25px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px 22px;
+            align-items: flex-end;
+        }
+
+        .filters-title {
+            width: 100%;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            min-width: 160px;
+        }
+
+        .filter-label {
+            font-size: 13px;
+            color: #bbbbbb;
+            margin-bottom: 4px;
+        }
+
+        .filter-input,
+        .filter-select {
+            background: #111111;
+            border: 1px solid #333333;
+            border-radius: 8px;
+            padding: 6px 10px;
+            color: #f5f5f5;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .filter-input:focus,
+        .filter-select:focus {
+            border-color: #6aa6ff;
+        }
+
+        .filters-actions {
+            margin-left: auto;
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            border: none;
+            border-radius: 8px;
+            padding: 8px 14px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s ease, transform 0.1s ease;
+        }
+
+        .btn-primary {
+            background: #6aa6ff;
+            color: #000;
+        }
+
+        .btn-primary:hover {
+            background: #8abaff;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: #272727;
+            color: #f5f5f5;
+        }
+
+        .btn-secondary:hover {
+            background: #333333;
+            transform: translateY(-1px);
+        }
+
+        /* Grille artistes */
+
+        .artists-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+        }
+
+        .artist-card {
+            background: #151515;
+            border: 1px solid #262626;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0px 6px 18px rgba(0, 0, 0, 0.35);
+            transition: transform 0.15s ease, box-shadow 0.2s ease;
+        }
+
+        .artist-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.55);
+        }
+
+        .artist-card img {
+            width: 100%;
+            height: 240px;
+            object-fit: cover;
+            border-bottom: 1px solid #262626;
+        }
+
+        .artist-info {
+            padding: 15px 20px 20px;
+        }
+
+        .artist-name {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .artist-meta {
+            font-size: 14px;
+            color: #bbb;
+            margin-bottom: 14px;
+        }
+
+        .details-btn {
+            display: inline-block;
+            padding: 8px 14px;
+            background: #6aa6ff;
+            color: #000;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            border-radius: 6px;
+            transition: background 0.2s ease;
+        }
+
+        .details-btn:hover {
+            background: #8abaff;
+        }
+
+        .empty-message {
+            margin-top: 30px;
+            font-size: 16px;
+            color: #bbbbbb;
+        }
+    </style>
 </head>
 <body>
-<h1>Liste des artistes</h1>
 
-{{ range . }}
-    <div style="border:1px solid #444; padding:10px; margin:10px; width:250px;">
-        <img src="{{ .Image }}" alt="{{ .Name }}" width="200">
-        <h2>{{ .Name }}</h2>
-        <p>Création : {{ .CreationDate }}</p>
-        <p>Membres :
-            {{ range .Members }}
-                {{ . }},
+<div class="container">
+    <h1>Liste des artistes</h1>
+
+    <!-- Formulaire de filtres -->
+    <form id="filters-form" method="get" action="/">
+        <div class="filters-card">
+            <div class="filters-title">Filtres</div>
+
+            <div class="filter-group">
+                <label class="filter-label" for="name">Nom de l'artiste</label>
+                <input
+                    id="name"
+                    name="name"
+                    type="text"
+                    class="filter-input"
+                    placeholder="Rechercher par nom">
+            </div>
+
+            <div class="filter-group">
+                <label class="filter-label" for="year">Année de création</label>
+                <input
+                    id="year"
+                    name="year"
+                    type="number"
+                    class="filter-input"
+                    placeholder="Ex: 1990">
+            </div>
+
+            <div class="filter-group">
+                <label class="filter-label" for="members">Nombre de membres (exact)</label>
+                <input
+                    id="members"
+                    name="members"
+                    type="number"
+                    min="1"
+                    class="filter-input"
+                    placeholder="Ex: 4">
+            </div>
+
+            <!-- Exemple de checkbox : solo / groupe -->
+            <div class="filter-group">
+                <label class="filter-label">
+                    <input type="checkbox" name="solo_only">
+                    &nbsp;Afficher uniquement les artistes solo
+                </label>
+            </div>
+
+            <div class="filters-actions">
+                <button type="submit" class="btn btn-primary">Appliquer</button>
+                <button type="button" id="reset-filters" class="btn btn-secondary">Réinitialiser</button>
+            </div>
+        </div>
+    </form>
+
+    <!-- Grille des artistes -->
+    {{ if . }}
+        <div class="artists-grid">
+            {{ range . }}
+                <div class="artist-card">
+                    <img src="{{ .Image }}" alt="{{ .Name }}">
+
+                    <div class="artist-info">
+                        <div class="artist-name">{{ .Name }}</div>
+                        <div class="artist-meta">
+                            Création : {{ .CreationDate }}<br>
+                            Membres : {{ len .Members }}
+                        </div>
+                        <a class="details-btn" href="/artist/{{ .ID }}">Voir détails</a>
+                    </div>
+                </div>
             {{ end }}
-        </p>
+        </div>
+    {{ else }}
+        <div class="empty-message">
+            Aucun artiste ne correspond aux filtres sélectionnés.
+        </div>
+    {{ end }}
+</div>
 
-        <a href="/artist/{{ .ID }}">Voir détails</a>
-    </div>
-{{ end }}
+<!-- Script des filtres (fourni par ton pote, servi depuis /static/js/filters.js) -->
+<script src="/static/js/filters.js"></script>
 
 </body>
 </html>
