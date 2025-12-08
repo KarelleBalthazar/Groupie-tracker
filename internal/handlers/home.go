@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"html/template"
 	"log"
 	"net/http"
 	"strconv"
@@ -11,101 +10,129 @@ import (
 	"groupie_tracker/internal/models"
 )
 
-// On charge tous les templates une seule fois pour tout le package handlers.
-var templates = template.Must(template.ParseGlob("templates/*.html"))
-
-// notFound affiche une page 404 personnalisée.
-func notFound(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusNotFound)
-	if err := templates.ExecuteTemplate(w, "404.html", nil); err != nil {
-		// En dernier recours, on envoie juste un texte brut
-		http.Error(w, "404 page not found", http.StatusNotFound)
-	}
+type HomePageData struct {
+	Artists        []models.Artist
+	NameFilter     string
+	YearMin        string
+	YearMax        string
+	AlbumMin       string
+	AlbumMax       string
+	MembersMin     string
+	MembersMax     string
+	LocationFilter string
+	SoloOnly       bool
 }
 
-// Home gère la page d'accueil : liste de tous les artistes avec filtres.
 func Home(w http.ResponseWriter, r *http.Request) {
-	// On ne veut que "/"
 	if r.URL.Path != "/" {
-		notFound(w, r)
+		NotFound(w, r) // Utilise NotFound avec majuscule
 		return
 	}
 
-	// Récupération des artistes via l'API
+	// Récupération de tous les artistes
 	artists, err := api.GetArtists()
 	if err != nil {
-		log.Println("Erreur GetArtists:", err)
-		http.Error(w, "Erreur lors de la récupération des artistes", http.StatusInternalServerError)
+		log.Printf("Erreur API artists: %v", err)
+		ServerError(w, r) // Utilise ServerError
 		return
 	}
 
-	// =========================
-	//       LECTURE FILTRES
-	// =========================
+	// Récupération des paramètres de filtrage
 	q := r.URL.Query()
-
 	nameFilter := strings.ToLower(strings.TrimSpace(q.Get("name")))
-	yearStr := strings.TrimSpace(q.Get("year"))
-	membersStr := strings.TrimSpace(q.Get("members"))
-	soloOnly := q.Get("solo_only") == "on" || q.Get("solo_only") == "true"
+	yearMinStr := strings.TrimSpace(q.Get("year_min"))
+	yearMaxStr := strings.TrimSpace(q.Get("year_max"))
+	albumMinStr := strings.TrimSpace(q.Get("album_min"))
+	albumMaxStr := strings.TrimSpace(q.Get("album_max"))
+	membersMinStr := strings.TrimSpace(q.Get("members_min"))
+	membersMaxStr := strings.TrimSpace(q.Get("members_max"))
+	locationFilter := strings.ToLower(strings.TrimSpace(q.Get("location")))
+	soloOnly := q.Get("solo_only") == "true"
 
-	var yearFilter, membersCount int
+	// Conversion des filtres numériques
+	yearMin, _ := strconv.Atoi(yearMinStr)
+	yearMax, _ := strconv.Atoi(yearMaxStr)
+	membersMin, _ := strconv.Atoi(membersMinStr)
+	membersMax, _ := strconv.Atoi(membersMaxStr)
 
-	if yearStr != "" {
-		if v, err := strconv.Atoi(yearStr); err == nil {
-			yearFilter = v
-		}
-	}
-
-	if membersStr != "" {
-		if v, err := strconv.Atoi(membersStr); err == nil {
-			membersCount = v
-		}
-	}
-
-	// =========================
-	//      APPLICATION FILTRES
-	// =========================
+	// Filtrage des artistes
 	var filtered []models.Artist
-
 	for _, a := range artists {
-		// Filtre par nom (contient, insensible à la casse)
+		// Filtre par nom
 		if nameFilter != "" && !strings.Contains(strings.ToLower(a.Name), nameFilter) {
 			continue
 		}
 
-		// Année de création exacte
-		if yearFilter != 0 && a.CreationDate != yearFilter {
+		// Filtre par année de création (plage)
+		if yearMin > 0 && a.CreationDate < yearMin {
+			continue
+		}
+		if yearMax > 0 && a.CreationDate > yearMax {
 			continue
 		}
 
-		// Nombre de membres exact
-		if membersCount != 0 && len(a.Members) != membersCount {
+		// Filtre par date du premier album (plage)
+		if albumMinStr != "" && a.FirstAlbum < albumMinStr {
+			continue
+		}
+		if albumMaxStr != "" && a.FirstAlbum > albumMaxStr {
 			continue
 		}
 
-		// Uniquement solo
-		if soloOnly && len(a.Members) != 1 {
+		// Filtre par nombre de membres (plage)
+		memberCount := len(a.Members)
+		if membersMin > 0 && memberCount < membersMin {
 			continue
+		}
+		if membersMax > 0 && memberCount > membersMax {
+			continue
+		}
+
+		// Filtre solo uniquement
+		if soloOnly && memberCount > 1 {
+			continue
+		}
+
+		// Filtre par localisation (cherche dans les relations)
+		if locationFilter != "" {
+			rel, err := api.GetRelationByID(a.ID)
+			if err != nil {
+				log.Printf("Erreur GetRelationByID pour artiste %d: %v", a.ID, err)
+				continue
+			}
+
+			found := false
+			for loc := range rel.DatesLocations {
+				if strings.Contains(strings.ToLower(loc), locationFilter) {
+					found = true
+					break
+				}
+			}
+
+			if !found {
+				continue
+			}
 		}
 
 		filtered = append(filtered, a)
 	}
 
-	// Si aucun filtre saisi -> on affiche tout
-	noFilter := nameFilter == "" && yearFilter == 0 && membersCount == 0 && !soloOnly
-
-	var data any
-	if noFilter {
-		data = artists
-	} else {
-		data = filtered
+	// Préparation des données pour le template
+	data := HomePageData{
+		Artists:        filtered,
+		NameFilter:     q.Get("name"),
+		YearMin:        yearMinStr,
+		YearMax:        yearMaxStr,
+		AlbumMin:       albumMinStr,
+		AlbumMax:       albumMaxStr,
+		MembersMin:     membersMinStr,
+		MembersMax:     membersMaxStr,
+		LocationFilter: q.Get("location"),
+		SoloOnly:       soloOnly,
 	}
 
-	// Affichage avec le template home.html
 	if err := templates.ExecuteTemplate(w, "home.html", data); err != nil {
-		log.Println("Erreur template home:", err)
-		http.Error(w, "Erreur d'affichage de la page d'accueil", http.StatusInternalServerError)
-		return
+		log.Printf("Erreur template home.html: %v", err)
+		ServerError(w, r)
 	}
 }

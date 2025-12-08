@@ -2,159 +2,617 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>{{ .Artist.Name }} – Détails</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ .Artist.Name }} - Groupie Tracker</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
-        body {
-            background: #0b0b0b;
-            color: #f5f5f5;
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+        * {
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
         }
 
-        .container {
-            max-width: 1200px;
-            margin: 30px auto;
-            padding: 0 20px 50px;
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0a0a0a;
+            color: #f5f5f5;
+            min-height: 100vh;
         }
 
-        h1 {
-            margin-bottom: 20px;
-            font-size: 32px;
+        /* ===== NAVIGATION ===== */
+        .nav-header {
+            background: rgba(21, 21, 21, 0.95);
+            border-bottom: 1px solid #2a2a2a;
+            padding: 16px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(12px);
         }
 
-        .artist-card {
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 30px;
             display: flex;
-            gap: 25px;
-            background: #151515;
-            border-radius: 12px;
-            padding: 20px;
-            border: 1px solid #262626;
-            box-shadow: 0px 6px 18px rgba(0, 0, 0, 0.35);
+            align-items: center;
+            gap: 18px;
         }
 
-        .artist-card img {
-            width: 260px;
-            height: 260px;
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: rgba(106, 166, 255, 0.12);
+            color: #6aa6ff;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(106, 166, 255, 0.3);
+        }
+
+        .back-btn:hover {
+            background: rgba(106, 166, 255, 0.22);
+            transform: translateX(-4px);
+            box-shadow: 0 4px 12px rgba(106, 166, 255, 0.2);
+        }
+
+        .nav-title {
+            font-size: 15px;
+            color: #888;
+            font-weight: 500;
+        }
+
+        /* ===== CONTAINER ===== */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 35px 30px 60px;
+        }
+
+        /* ===== HERO SECTION ===== */
+        .artist-hero {
+            display: grid;
+            grid-template-columns: 380px 1fr;
+            gap: 45px;
+            background: linear-gradient(135deg, #151515 0%, #1c1c1c 100%);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 35px;
+            border: 1px solid #2a2a2a;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .artist-hero::before {
+            content: '';
+            position: absolute;
+            top: -40%;
+            right: -8%;
+            width: 450px;
+            height: 450px;
+            background: radial-gradient(circle, rgba(106, 166, 255, 0.08) 0%, transparent 65%);
+            pointer-events: none;
+            animation: pulse 8s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.4; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.1); }
+        }
+
+        .artist-image-container {
+            position: relative;
+            z-index: 2;
+        }
+
+        .artist-image {
+            width: 100%;
+            height: 380px;
             object-fit: cover;
-            border-radius: 12px;
-            border: 1px solid #262626;
+            border-radius: 16px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6);
+            border: 2px solid #2a2a2a;
+            transition: transform 0.4s ease;
         }
 
-        .artist-info {
-            flex: 1;
+        .artist-image:hover {
+            transform: scale(1.02);
+        }
+
+        .artist-details {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            z-index: 2;
         }
 
         .artist-name {
-            font-size: 26px;
-            font-weight: 700;
-            margin-bottom: 10px;
+            font-size: 52px;
+            font-weight: 800;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, #6aa6ff 0%, #4d8cff 50%, #8abaff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.1;
         }
 
         .artist-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 11px 20px;
+            background: rgba(255, 255, 255, 0.04);
+            border-radius: 12px;
+            border: 1px solid #2a2a2a;
             font-size: 14px;
-            color: #bbbbbb;
-            margin-bottom: 14px;
+            transition: all 0.3s ease;
         }
 
-        .members-title {
-            font-weight: bold;
-            font-size: 15px;
-            margin-top: 10px;
-            margin-bottom: 4px;
+        .meta-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: #3a3a3a;
         }
 
-        .concerts-block {
-            margin-top: 30px;
-        }
-
-        .concerts-block h2 {
+        .meta-icon {
             font-size: 20px;
-            margin-bottom: 10px;
         }
 
-        .concert-item {
-            margin-bottom: 14px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #262626;
+        .meta-label {
+            color: #999;
+            font-weight: 500;
         }
 
-        .concert-item:last-child {
-            border-bottom: none;
+        .meta-value {
+            color: #f5f5f5;
+            font-weight: 700;
+        }
+
+        /* ===== MEMBRES ===== */
+        .members-section {
+            margin-top: 32px;
+        }
+
+        .section-title {
+            font-size: 19px;
+            font-weight: 700;
+            color: #6aa6ff;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .members-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 11px;
+        }
+
+        .member-tag {
+            padding: 11px 20px;
+            background: rgba(106, 166, 255, 0.12);
+            border: 1px solid rgba(106, 166, 255, 0.35);
+            border-radius: 24px;
+            color: #e8f0ff;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: default;
+        }
+
+        .member-tag:hover {
+            background: rgba(106, 166, 255, 0.22);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(106, 166, 255, 0.25);
+        }
+
+        /* ===== CONCERTS ===== */
+        .concerts-section {
+            background: #151515;
+            border-radius: 20px;
+            padding: 38px;
+            border: 1px solid #2a2a2a;
+            margin-bottom: 35px;
+        }
+
+        .concerts-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 28px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .concerts-title {
+            font-size: 30px;
+            font-weight: 800;
+            color: #f5f5f5;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .concerts-count {
+            padding: 7px 16px;
+            background: rgba(106, 166, 255, 0.18);
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 700;
+            color: #6aa6ff;
+            border: 1px solid rgba(106, 166, 255, 0.3);
+        }
+
+        /* ===== CARTE CONCERT ===== */
+        .concert-card {
+            background: #1a1a1a;
+            border: 1px solid #2a2a2a;
+            border-radius: 16px;
+            padding: 26px;
+            margin-bottom: 16px;
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+
+        .concert-card:hover {
+            background: #1f1f1f;
+            border-color: #6aa6ff;
+            transform: translateX(6px);
+            box-shadow: 0 8px 24px rgba(106, 166, 255, 0.15);
         }
 
         .concert-location {
-            font-weight: 600;
-            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 16px;
+        }
+
+        .location-icon {
+            font-size: 26px;
+            filter: drop-shadow(0 2px 4px rgba(106, 166, 255, 0.3));
+        }
+
+        .location-name {
+            font-size: 21px;
+            font-weight: 700;
+            color: #f5f5f5;
         }
 
         .concert-dates {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding-left: 40px;
+        }
+
+        .date-badge {
+            padding: 9px 17px;
+            background: rgba(106, 166, 255, 0.1);
+            border: 1px solid rgba(106, 166, 255, 0.3);
+            border-radius: 10px;
             font-size: 13px;
-            color: #bbbbbb;
-        }
-
-        a.back-btn {
-            display: inline-block;
-            margin-bottom: 20px;
-            padding: 8px 14px;
-            background: #6aa6ff;
-            color: #000;
-            border-radius: 6px;
-            text-decoration: none;
+            color: #d0d0d0;
             font-weight: 600;
-            transition: background 0.2s ease;
+            transition: all 0.25s ease;
         }
 
-        a.back-btn:hover {
-            background: #8abaff;
+        .date-badge:hover {
+            background: rgba(106, 166, 255, 0.22);
+            color: #fff;
+            transform: translateY(-2px);
+        }
+
+        /* ===== CARTE INTERACTIVE ===== */
+        .map-section {
+            background: #151515;
+            border-radius: 20px;
+            padding: 38px;
+            border: 1px solid #2a2a2a;
+        }
+
+        .map-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 22px;
+        }
+
+        .map-title {
+            font-size: 26px;
+            font-weight: 800;
+            color: #f5f5f5;
+        }
+
+        #map {
+            width: 100%;
+            height: 520px;
+            border-radius: 14px;
+            border: 2px solid #2a2a2a;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        /* ===== MESSAGE VIDE ===== */
+        .empty-message {
+            text-align: center;
+            padding: 70px 20px;
+            color: #666;
+            font-size: 16px;
+        }
+
+        .empty-icon {
+            font-size: 56px;
+            margin-bottom: 18px;
+            opacity: 0.6;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 1100px) {
+            .artist-hero {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+
+            .artist-image {
+                height: 340px;
+            }
+
+            .artist-name {
+                font-size: 42px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 25px 18px 50px;
+            }
+
+            .nav-container {
+                padding: 0 18px;
+            }
+
+            .artist-hero,
+            .concerts-section,
+            .map-section {
+                padding: 25px;
+            }
+
+            .artist-name {
+                font-size: 34px;
+            }
+
+            .concerts-title {
+                font-size: 24px;
+            }
+
+            .concert-dates {
+                padding-left: 0;
+            }
+
+            #map {
+                height: 380px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .artist-meta {
+                flex-direction: column;
+            }
+
+            .meta-item {
+                width: 100%;
+            }
+
+            .members-grid {
+                gap: 8px;
+            }
+
+            .member-tag {
+                font-size: 13px;
+                padding: 9px 16px;
+            }
         }
     </style>
 </head>
 <body>
 
+<!-- NAVIGATION -->
+<nav class="nav-header">
+    <div class="nav-container">
+        <a href="/" class="back-btn">
+            <span>←</span>
+            <span>Retour</span>
+        </a>
+        <span class="nav-title">Détails de l'artiste</span>
+    </div>
+</nav>
+
+<!-- CONTAINER PRINCIPAL -->
 <div class="container">
-    <a href="/" class="back-btn">← Retour</a>
 
-    <div class="artist-card">
-        <img src="{{ .Artist.Image }}" alt="{{ .Artist.Name }}">
+    <!-- HERO SECTION -->
+    <div class="artist-hero">
+        <div class="artist-image-container">
+            <img src="{{ .Artist.Image }}" alt="{{ .Artist.Name }}" class="artist-image">
+        </div>
 
-        <div class="artist-info">
-            <div class="artist-name">{{ .Artist.Name }}</div>
-            
+        <div class="artist-details">
+            <h1 class="artist-name">{{ .Artist.Name }}</h1>
+
             <div class="artist-meta">
-                Création : {{ .Artist.CreationDate }}<br>
-                Premier album : {{ .Artist.FirstAlbum }}
+                <div class="meta-item">
+                    <span class="meta-icon">📅</span>
+                    <span class="meta-label">Création :</span>
+                    <span class="meta-value">{{ .Artist.CreationDate }}</span>
+                </div>
+
+                <div class="meta-item">
+                    <span class="meta-icon">💿</span>
+                    <span class="meta-label">Premier album :</span>
+                    <span class="meta-value">{{ .Artist.FirstAlbum }}</span>
+                </div>
+
+                <div class="meta-item">
+                    <span class="meta-icon">👥</span>
+                    <span class="meta-label">Membres :</span>
+                    <span class="meta-value">{{ len .Artist.Members }}</span>
+                </div>
             </div>
 
-            <div class="members-title">Membres :</div>
-            <ul>
-                {{ range .Artist.Members }}
-                    <li>{{ . }}</li>
-                {{ end }}
-            </ul>
+            <div class="members-section">
+                <h2 class="section-title">
+                    <span>🎤</span>
+                    <span>Membres du groupe</span>
+                </h2>
+                <div class="members-grid">
+                    {{ range .Artist.Members }}
+                        <span class="member-tag">{{ . }}</span>
+                    {{ end }}
+                </div>
+            </div>
         </div>
     </div>
 
-    <div class="concerts-block">
-        <h2>Concerts</h2>
+    <!-- CONCERTS -->
+    <div class="concerts-section">
+        <div class="concerts-header">
+            <h2 class="concerts-title">
+                <span>🎸</span>
+                <span>Concerts & Tournées</span>
+            </h2>
+            <span class="concerts-count">
+                {{ len .Relations.DatesLocations }} lieux
+            </span>
+        </div>
 
-        {{ if .Relation.DatesLocations }}
-            {{ range $location, $dates := .Relation.DatesLocations }}
-                <div class="concert-item">
-                    <div class="concert-location">{{ $location }}</div>
+        {{ if .Relations.DatesLocations }}
+            {{ range $location, $dates := .Relations.DatesLocations }}
+                <div class="concert-card">
+                    <div class="concert-location">
+                        <span class="location-icon">📍</span>
+                        <h3 class="location-name">{{ $location }}</h3>
+                    </div>
                     <div class="concert-dates">
-                        {{ range $i, $d := $dates }}
-                            {{ if $i }}, {{ end }}{{ $d }}
+                        {{ range $dates }}
+                            <span class="date-badge">{{ . }}</span>
                         {{ end }}
                     </div>
                 </div>
             {{ end }}
         {{ else }}
-            <p>Aucune information de concert disponible.</p>
+            <div class="empty-message">
+                <div class="empty-icon">😔</div>
+                <p>Aucune date de concert disponible.</p>
+            </div>
         {{ end }}
+    </div>
+
+    <!-- CARTE INTERACTIVE -->
+    <div class="map-section">
+        <div class="map-header">
+            <span>🗺️</span>
+            <h2 class="map-title">Carte des concerts</h2>
+        </div>
+        <div id="map"></div>
     </div>
 
 </div>
 
+<!-- LEAFLET JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+    // Initialisation de la carte
+    const map = L.map('map').setView([30, 10], 2);
+
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        attribution: '© OpenStreetMap © CARTO',
+        maxZoom: 19
+    }).addTo(map);
+
+    // Récupération des données JSON
+    const concertsData = `{{ .RelationsJSON }}`;
+    let concerts = {};
+
+    try {
+        concerts = JSON.parse(concertsData);
+    } catch (e) {
+        console.error('Erreur parsing JSON:', e);
+    }
+
+    // Géocodage amélioré
+    const locationCoords = {
+        'dunedin-new_zealand': [-45.8788, 170.5028],
+        'georgia-usa': [32.1656, -82.9001],
+        'penrose-new_zealand': [-36.9223, 174.8176],
+        'nagoya-japan': [35.1815, 136.9066],
+        'paris-france': [48.8566, 2.3522],
+        'london-uk': [51.5074, -0.1278],
+        'new_york-usa': [40.7128, -74.0060],
+        'tokyo-japan': [35.6762, 139.6503],
+        'los_angeles-usa': [34.0522, -118.2437],
+        'berlin-germany': [52.5200, 13.4050],
+        'sydney-australia': [-33.8688, 151.2093],
+        'moscow-russia': [55.7558, 37.6173],
+        'beijing-china': [39.9042, 116.4074],
+        'rio_de_janeiro-brazil': [-22.9068, -43.1729],
+        'toronto-canada': [43.6532, -79.3832],
+        'mexico_city-mexico': [19.4326, -99.1332],
+        'mumbai-india': [19.0760, 72.8777],
+        'seoul-south_korea': [37.5665, 126.9780],
+        'madrid-spain': [40.4168, -3.7038],
+        'rome-italy': [41.9028, 12.4964]
+    };
+
+    // Ajout des marqueurs
+    Object.keys(concerts).forEach(location => {
+        const normalizedLocation = location
+            .toLowerCase()
+            .replace(/\s+/g, '_')
+            .replace(/,\s*/g, '-');
+        
+        const coords = locationCoords[normalizedLocation];
+        
+        if (coords) {
+            const dates = concerts[location];
+            const marker = L.marker(coords, {
+                icon: L.divIcon({
+                    className: 'custom-marker',
+                    html: '<div style="background: #6aa6ff; width: 12px; height: 12px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.4);"></div>',
+                    iconSize: [16, 16],
+                    iconAnchor: [8, 8]
+                })
+            }).addTo(map);
+            
+            marker.bindPopup(`
+                <div style="font-family: system-ui; padding: 8px;">
+                    <div style="color: #000; font-weight: 700; margin-bottom: 6px; font-size: 14px;">
+                        📍 ${location}
+                    </div>
+                    <div style="color: #555; font-size: 12px; font-weight: 500;">
+                        ${dates.length} concert(s)
+                    </div>
+                </div>
+            `);
+        } else {
+            console.warn(`Coordonnées non trouvées pour: ${location}`);
+        }
+    });
+</script>
+
 </body>
 </html>
+

@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"encoding/json"
 	"log"
 	"net/http"
 	"strconv"
@@ -10,46 +11,57 @@ import (
 	"groupie_tracker/internal/models"
 )
 
+// ArtistPageData contient les données pour la page artiste
 type ArtistPageData struct {
-	Artist   models.Artist
-	Relation models.Relation
+	Artist        models.Artist
+	Relations     models.Relation
+	RelationsJSON string
 }
 
+// Artist gère la page de détail d'un artiste
 func Artist(w http.ResponseWriter, r *http.Request) {
-	if !strings.HasPrefix(r.URL.Path, "/artist/") {
-		notFound(w, r)
-		return
-	}
-
+	// Extraction de l'ID depuis l'URL
 	idStr := strings.TrimPrefix(r.URL.Path, "/artist/")
 	id, err := strconv.Atoi(idStr)
-	if err != nil {
-		notFound(w, r)
+	if err != nil || id < 1 {
+		BadRequest(w, r)
 		return
 	}
 
+	// Récupération des données de l'artiste
 	artist, err := api.GetArtistByID(id)
 	if err != nil {
-		log.Println("Artist not found:", err)
-		notFound(w, r)
+		log.Printf("Erreur GetArtistByID(%d): %v", id, err)
+		NotFound(w, r)
 		return
 	}
 
-	relation, err := api.GetRelationByID(id)
+	// Récupération des relations (dates + lieux)
+	relations, err := api.GetRelationByID(id)
 	if err != nil {
-		log.Println("Erreur GetRelationByID:", err)
-		http.Error(w, "Erreur lors de la récupération des concerts", http.StatusInternalServerError)
+		log.Printf("Erreur GetRelationByID(%d): %v", id, err)
+		ServerError(w, r)
 		return
 	}
 
+	// Conversion des relations en JSON pour JavaScript
+	relationsJSON, err := json.Marshal(relations.DatesLocations)
+	if err != nil {
+		log.Printf("Erreur JSON Marshal: %v", err)
+		relationsJSON = []byte("{}")
+	}
+
+	// Préparation des données
 	data := ArtistPageData{
-		Artist:   artist,
-		Relation: relation,
+		Artist:        artist,
+		Relations:     relations,
+		RelationsJSON: string(relationsJSON),
 	}
 
+	// Rendu du template
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	if err := templates.ExecuteTemplate(w, "artist.html", data); err != nil {
-		log.Println("Erreur template artist:", err)
-		http.Error(w, "Erreur d'affichage de la page artiste", http.StatusInternalServerError)
-		return
+		log.Printf("Erreur template artist.html: %v", err)
+		ServerError(w, r)
 	}
 }
