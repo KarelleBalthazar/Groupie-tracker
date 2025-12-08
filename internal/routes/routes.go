@@ -18,6 +18,9 @@ func SetupRoutes() *http.ServeMux {
 	mux.HandleFunc("/", handlers.Home)
 	mux.HandleFunc("/artist/", handlers.Artist)
 
+	// Recherche (AJOUTÉ !)
+	mux.HandleFunc("/search", handlers.SearchSuggestions)
+
 	// Filtres
 	mux.HandleFunc("/filter/location", handlers.FilterByLocation)
 

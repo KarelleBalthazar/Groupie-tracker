@@ -11,21 +11,21 @@ import (
 )
 
 type HomePageData struct {
-	Artists        []models.Artist
-	NameFilter     string
-	YearMin        string
-	YearMax        string
-	AlbumMin       string
-	AlbumMax       string
-	MembersMin     string
-	MembersMax     string
-	LocationFilter string
-	SoloOnly       bool
+	Artists    []models.Artist
+	NameFilter string
+	YearMin    string
+	YearMax    string
+	AlbumMin   string
+	AlbumMax   string
+	MembersMin string
+	MembersMax string
+	Location   string // ✅ Changé de LocationFilter à Location
+	SoloOnly   bool
 }
 
 func Home(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/" {
-		NotFound(w, r) // Utilise NotFound avec majuscule
+		NotFound(w, r)
 		return
 	}
 
@@ -33,7 +33,7 @@ func Home(w http.ResponseWriter, r *http.Request) {
 	artists, err := api.GetArtists()
 	if err != nil {
 		log.Printf("Erreur API artists: %v", err)
-		ServerError(w, r) // Utilise ServerError
+		ServerError(w, r)
 		return
 	}
 
@@ -119,16 +119,16 @@ func Home(w http.ResponseWriter, r *http.Request) {
 
 	// Préparation des données pour le template
 	data := HomePageData{
-		Artists:        filtered,
-		NameFilter:     q.Get("name"),
-		YearMin:        yearMinStr,
-		YearMax:        yearMaxStr,
-		AlbumMin:       albumMinStr,
-		AlbumMax:       albumMaxStr,
-		MembersMin:     membersMinStr,
-		MembersMax:     membersMaxStr,
-		LocationFilter: q.Get("location"),
-		SoloOnly:       soloOnly,
+		Artists:    filtered,
+		NameFilter: q.Get("name"),
+		YearMin:    yearMinStr,
+		YearMax:    yearMaxStr,
+		AlbumMin:   albumMinStr,
+		AlbumMax:   albumMaxStr,
+		MembersMin: membersMinStr,
+		MembersMax: membersMaxStr,
+		Location:   q.Get("location"), // ✅ Changé de LocationFilter à Location
+		SoloOnly:   soloOnly,
 	}
 
 	if err := templates.ExecuteTemplate(w, "home.html", data); err != nil {
