@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Groupie Tracker</title>
+  <link rel="stylesheet" href="/static/style.css" />
+  <script defer src="/static/script.js"></script>
+</head>
+<body>
+
+<header class="header">
+  <h1>Groupie Tracker</h1>
+  <p>Recherchez vos artistes préférés avec des filtres</p>
+</header>
+
+<main class="container">
+
+  <!-- ===== COLONNE DE GAUCHE : FILTRES ===== -->
+  <aside class="filters">
+    <form id="filters-form" method="GET" action="/">
+      <h2>Filtres</h2>
+
+      <!-- Filtre : Année de création -->
+      <div class="filter-group">
+        <label>Année de création</label>
+        <div class="range-inputs">
+          <input type="number" name="creation_min" placeholder="Min (ex : 1960)">
+          <span>-</span>
+          <input type="number" name="creation_max" placeholder="Max (ex : 2022)">
+        </div>
+      </div>
+
+      <!-- Filtre : Premier album -->
+      <div class="filter-group">
+        <label>Année du premier album</label>
+        <div class="range-inputs">
+          <input type="number" name="album_min" placeholder="Min (ex : 1965)">
+          <span>-</span>
+          <input type="number" name="album_max" placeholder="Max (ex : 2022)">
+        </div>
+        <small>Filtrage basé sur l’année du premier album</small>
+      </div>
+
+      <!-- Filtre : Nombre de membres -->
+      <div class="filter-group">
+        <label>Nombre de membres</label>
+        <div class="checkbox-group">
+          <label><input type="checkbox" name="members_group" value="1"> 1 membre</label>
+          <label><input type="checkbox" name="members_group" value="2-3"> 2–3 membres</label>
+          <label><input type="checkbox" name="members_group" value="4-5"> 4–5 membres</label>
+          <label><input type="checkbox" name="members_group" value="6+"> 6+ membres</label>
+        </div>
+      </div>
+
+      <!-- Filtre : Lieux -->
+      <div class="filter-group">
+        <label>Lieux de concerts (pays)</label>
+        <div class="checkbox-group">
+          <label><input type="checkbox" name="country" value="usa"> USA</label>
+          <label><input type="checkbox" name="country" value="france"> France</label>
+          <label><input type="checkbox" name="country" value="uk"> UK</label>
+          <label><input type="checkbox" name="country" value="germany"> Allemagne</label>
+          <label><input type="checkbox" name="country" value="japan"> Japon</label>
+        </div>
+        <small>Exemple : “Seattle, Washington, USA” → USA</small>
+      </div>
+
+      <div class="filter-actions">
+        <button type="submit" class="btn-primary">Appliquer</button>
+        <button type="button" id="reset-filters" class="btn-secondary">Réinitialiser</button>
+      </div>
+
+
+  <!-- ===== COLONNE DE DROITE : ARTISTES ===== -->
+  <section class="artists">
+
+    {{range .Artists}}
+    <div class="artist-card">
+      <img src="{{.Image}}" alt="{{.Name}}">
+      <div class="artist-info">
+        <h3>{{.Name}}</h3>
+        <p><strong>Création :</strong> {{.CreationDate}}</p>
+        <p><strong>Premier album :</strong> {{.FirstAlbum}}</p>
+        <p><strong>Membres :</strong> {{len .Members}}</p>
+      </div>
+    </div>
+    {{end}}
+
+  </section>
+
+</main>
+
+</body>
+</html>
