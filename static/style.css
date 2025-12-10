@@ -1,6 +1,18 @@
-/* ------------------------------
-   BACKGROUND GRADIENT PASTEL
------------------------------- */
+/* ===========================
+   VARIABLES (PASTEL + NEON)
+=========================== */
+:root {
+    --card-bg: rgba(255, 255, 255, 0.35);
+    --radius: 18px;
+    --border-light: rgba(0, 0, 0, 0.12);
+
+    --neon-purple: #a855f7;
+    --neon-pink: #ec4899;
+}
+
+/* ===========================
+   GLOBAL
+=========================== */
 body {
     margin: 0;
     font-family: "Inter", sans-serif;
@@ -9,20 +21,20 @@ body {
     min-height: 100vh;
 }
 
-/* ------------------------------
+/* ===========================
    GLASS EFFECT
------------------------------- */
+=========================== */
 .glass {
     background: rgba(255, 255, 255, 0.25);
-    border-radius: 18px;
+    border-radius: var(--radius);
     border: 1px solid rgba(255, 255, 255, 0.4);
     box-shadow: 0 8px 25px rgba(0,0,0,0.08);
     backdrop-filter: blur(15px);
 }
 
-/* ------------------------------
+/* ===========================
    HEADER
------------------------------- */
+=========================== */
 .header {
     text-align: center;
     padding: 40px 20px;
@@ -30,7 +42,7 @@ body {
 
 .title {
     font-size: 3rem;
-    background: linear-gradient(90deg, #a855f7, #ec4899);
+    background: linear-gradient(90deg, var(--neon-purple), var(--neon-pink));
     -webkit-background-clip: text;
     color: transparent;
 }
@@ -40,9 +52,9 @@ body {
     font-size: 1.1rem;
 }
 
-/* ------------------------------
+/* ===========================
    FILTERS
------------------------------- */
+=========================== */
 .filters {
     width: 90%;
     max-width: 900px;
@@ -57,14 +69,14 @@ body {
 .filter-block input {
     width: 100%;
     padding: 10px;
-    border-radius: 14px;
-    border: 1px solid rgba(0,0,0,0.1);
+    border-radius: var(--radius);
+    border: 1px solid var(--border-light);
     background: rgba(255,255,255,0.6);
 }
 
-/* ------------------------------
+/* ===========================
    CARDS
------------------------------- */
+=========================== */
 .cards {
     margin: 40px auto;
     width: 90%;
@@ -77,6 +89,10 @@ body {
 .card {
     padding: 20px;
     text-align: center;
+    border-radius: var(--radius);
+    background: var(--card-bg);
+    border: 1px solid var(--border-light);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.12);
     transition: 0.3s;
 }
 
@@ -85,14 +101,14 @@ body {
     width: 100%;
     height: 220px;
     object-fit: cover;
-    border-radius: 14px;
+    border-radius: var(--radius);
 }
 
-/* Texts */
+/* Title */
 .artist-name {
     font-size: 1.4rem;
     margin-top: 10px;
-    background: linear-gradient(90deg,#a855f7,#ec4899);
+    background: linear-gradient(90deg, var(--neon-purple), var(--neon-pink));
     -webkit-background-clip: text;
     color: transparent;
 }
@@ -102,14 +118,21 @@ body {
     color: #444;
 }
 
-/* ------------------------------
-   BUTTONS + NEON EFFECT
------------------------------- */
+/* NEON HOVER EFFECT */
+.neon-hover:hover {
+    box-shadow: 0 0 14px var(--neon-pink),
+                0 0 26px var(--neon-purple);
+    transform: translateY(-6px);
+}
+
+/* ===========================
+   BUTTONS
+=========================== */
 .btn {
     margin-top: 10px;
     padding: 10px;
-    border-radius: 14px;
-    background: linear-gradient(90deg,#a855f7,#ec4899);
+    border-radius: var(--radius);
+    background: linear-gradient(90deg, var(--neon-purple), var(--neon-pink));
     border: none;
     color: white;
     font-weight: 600;
@@ -117,20 +140,20 @@ body {
     transition: 0.3s;
 }
 
-.neon-btn:hover {
-    box-shadow: 0 0 12px #ec4899, 0 0 24px #a855f7;
+.btn:hover {
+    box-shadow: 0 0 12px var(--neon-pink),
+                0 0 24px var(--neon-purple);
     transform: translateY(-3px);
 }
 
-/* Neon hover on cards */
-.neon-hover:hover {
-    box-shadow: 0 0 12px #ec4899, 0 0 22px #a855f7;
-    transform: translateY(-6px);
+.btn.small {
+    padding: 8px 10px;
+    font-size: 0.9rem;
 }
 
-/* ------------------------------
-   SLIDE UP ANIMATION
------------------------------- */
+/* ===========================
+   ANIMATION
+=========================== */
 .slide-up {
     opacity: 0;
     transform: translateY(25px);
@@ -144,14 +167,64 @@ body {
     }
 }
 
-/* Divider */
+/* ===========================
+   DIVIDER
+=========================== */
 .divider {
     width: 80%;
     margin: 40px auto;
     border: none;
     height: 2px;
-    background: linear-gradient(90deg, transparent, #a855f7, transparent);
+    background: linear-gradient(90deg, transparent, var(--neon-purple), transparent);
 }
-.pulse {
-    box-shadow: 0 0 20px #ff66cc, 0 0 40px #cc33ff !important;
+
+/* ===========================
+   ARTIST DETAIL PAGE
+=========================== */
+.artist-detail {
+    width: 90%;
+    max-width: 900px;
+    margin: 40px auto;
+}
+
+.artist-card {
+    padding: 30px;
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    border: 1px solid var(--border-light);
+    text-align: center;
+    box-shadow: 0 0 20px rgba(0,0,0,0.15);
+}
+
+.artist-card .artist-img {
+    height: 260px;
+}
+
+/* Neon effect on title */
+.artist-card h1 {
+    background: linear-gradient(90deg, var(--neon-purple), var(--neon-pink));
+    -webkit-background-clip: text;
+    color: transparent;
+    transition: 0.25s ease;
+}
+
+.artist-card h1:hover {
+    text-shadow: 0 0 8px var(--neon-purple),
+                 0 0 16px var(--neon-pink);
+}
+
+/* Tours section */
+.tour-section {
+    width: 90%;
+    max-width: 900px;
+    margin: 40px auto;
+    text-align: center;
+}
+
+#tour-map {
+    background: rgba(255,255,255,0.3);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius);
+    height: 300px;
+    margin-top: 20px;
 }
