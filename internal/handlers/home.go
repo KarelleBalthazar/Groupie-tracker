@@ -19,7 +19,7 @@ type HomePageData struct {
 	AlbumMax   string
 	MembersMin string
 	MembersMax string
-	Location   string // ✅ Changé de LocationFilter à Location
+	Location   string
 	SoloOnly   bool
 }
 
@@ -29,7 +29,7 @@ func Home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Récupération de tous les artistes
+	// Récupère tous les artistes depuis l’API
 	artists, err := api.GetArtists()
 	if err != nil {
 		log.Printf("Erreur API artists: %v", err)
@@ -37,7 +37,7 @@ func Home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Récupération des paramètres de filtrage
+	// Lecture des filtres envoyés par l’utilisateur
 	q := r.URL.Query()
 	nameFilter := strings.ToLower(strings.TrimSpace(q.Get("name")))
 	yearMinStr := strings.TrimSpace(q.Get("year_min"))
@@ -49,21 +49,23 @@ func Home(w http.ResponseWriter, r *http.Request) {
 	locationFilter := strings.ToLower(strings.TrimSpace(q.Get("location")))
 	soloOnly := q.Get("solo_only") == "true"
 
-	// Conversion des filtres numériques
+	// Conversion en entiers
 	yearMin, _ := strconv.Atoi(yearMinStr)
 	yearMax, _ := strconv.Atoi(yearMaxStr)
 	membersMin, _ := strconv.Atoi(membersMinStr)
 	membersMax, _ := strconv.Atoi(membersMaxStr)
 
-	// Filtrage des artistes
+	// Liste filtrée
 	var filtered []models.Artist
+
 	for _, a := range artists {
+
 		// Filtre par nom
 		if nameFilter != "" && !strings.Contains(strings.ToLower(a.Name), nameFilter) {
 			continue
 		}
 
-		// Filtre par année de création (plage)
+		// Filtre par année de création
 		if yearMin > 0 && a.CreationDate < yearMin {
 			continue
 		}
@@ -71,7 +73,7 @@ func Home(w http.ResponseWriter, r *http.Request) {
 			continue
 		}
 
-		// Filtre par date du premier album (plage)
+		// Filtre par date du premier album
 		if albumMinStr != "" && a.FirstAlbum < albumMinStr {
 			continue
 		}
@@ -79,7 +81,7 @@ func Home(w http.ResponseWriter, r *http.Request) {
 			continue
 		}
 
-		// Filtre par nombre de membres (plage)
+		// Filtre par nombre de membres
 		memberCount := len(a.Members)
 		if membersMin > 0 && memberCount < membersMin {
 			continue
@@ -93,11 +95,11 @@ func Home(w http.ResponseWriter, r *http.Request) {
 			continue
 		}
 
-		// Filtre par localisation (cherche dans les relations)
+		// Filtre par localisation
 		if locationFilter != "" {
 			rel, err := api.GetRelationByID(a.ID)
 			if err != nil {
-				log.Printf("Erreur GetRelationByID pour artiste %d: %v", a.ID, err)
+				log.Printf("Erreur GetRelationByID pour artiste %d : %v", a.ID, err)
 				continue
 			}
 
@@ -114,10 +116,11 @@ func Home(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 
+		// Si tous les filtres passent → on garde l’artiste
 		filtered = append(filtered, a)
 	}
 
-	// Préparation des données pour le template
+	// Données envoyées à la page HTML
 	data := HomePageData{
 		Artists:    filtered,
 		NameFilter: q.Get("name"),
@@ -127,12 +130,13 @@ func Home(w http.ResponseWriter, r *http.Request) {
 		AlbumMax:   albumMaxStr,
 		MembersMin: membersMinStr,
 		MembersMax: membersMaxStr,
-		Location:   q.Get("location"), // ✅ Changé de LocationFilter à Location
+		Location:   q.Get("location"),
 		SoloOnly:   soloOnly,
 	}
 
+	// Rendu HTML
 	if err := templates.ExecuteTemplate(w, "home.html", data); err != nil {
-		log.Printf("Erreur template home.html: %v", err)
+		log.Printf("Erreur template home.html : %v", err)
 		ServerError(w, r)
 	}
 }
