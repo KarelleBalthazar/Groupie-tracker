@@ -1,20 +1,10 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const form = document.getElementById("filters-form");
-  const resetBtn = document.getElementById("reset-filters");
-
-  if (!form || !resetBtn) return;
-
-  resetBtn.addEventListener("click", () => {
-    // Reset tous les inputs
-    form.querySelectorAll("input").forEach((input) => {
-      if (input.type === "checkbox") {
-        input.checked = false;
-      } else {
-        input.value = "";
-      }
+// Petit effet smooth lors du hover sur les cartes
+document.querySelectorAll(".card").forEach(card => {
+    card.addEventListener("mousemove", e => {
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        card.style.setProperty("--x", `${x}px`);
+        card.style.setProperty("--y", `${y}px`);
     });
-
-    // Optionnel : recharger la page sans paramètres
-    window.location.href = "/";
-  });
 });
