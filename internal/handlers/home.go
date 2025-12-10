@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"text/template"
 
 	"groupie_tracker/internal/api"
 	"groupie_tracker/internal/models"
@@ -24,12 +25,7 @@ type HomePageData struct {
 }
 
 func Home(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path != "/" {
-		NotFound(w, r)
-		return
-	}
-
-	// Récupère tous les artistes depuis l’API
+	// Récupère tous les artistes depuis l'API
 	artists, err := api.GetArtists()
 	if err != nil {
 		log.Printf("Erreur API artists: %v", err)
@@ -37,7 +33,7 @@ func Home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Lecture des filtres envoyés par l’utilisateur
+	// Lecture des filtres envoyés par l'utilisateur
 	q := r.URL.Query()
 	nameFilter := strings.ToLower(strings.TrimSpace(q.Get("name")))
 	yearMinStr := strings.TrimSpace(q.Get("year_min"))
@@ -59,7 +55,6 @@ func Home(w http.ResponseWriter, r *http.Request) {
 	var filtered []models.Artist
 
 	for _, a := range artists {
-
 		// Filtre par nom
 		if nameFilter != "" && !strings.Contains(strings.ToLower(a.Name), nameFilter) {
 			continue
@@ -116,7 +111,7 @@ func Home(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 
-		// Si tous les filtres passent → on garde l’artiste
+		// Si tous les filtres passent → on garde l'artiste
 		filtered = append(filtered, a)
 	}
 
@@ -135,7 +130,14 @@ func Home(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Rendu HTML
-	if err := templates.ExecuteTemplate(w, "home.html", data); err != nil {
+	tmpl, err := template.ParseFiles("templates/home.html")
+	if err != nil {
+		log.Printf("Erreur parsing template : %v", err)
+		ServerError(w, r)
+		return
+	}
+
+	if err := tmpl.Execute(w, data); err != nil {
 		log.Printf("Erreur template home.html : %v", err)
 		ServerError(w, r)
 	}

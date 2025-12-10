@@ -15,21 +15,14 @@
     --radius: 18px;
 }
 
-/* ===========================
-   🌑 GLOBAL
-=========================== */
 
 body {
     margin: 0;
     padding: 0;
     font-family: "Inter", sans-serif;
-    background: var(--bg-anthracite);
+    background: var(--bg-anthracite); /* ← Change to var(--bg-black) for full black */
     color: var(--text-main);
 }
-
-/* ===========================
-   HEADER
-=========================== */
 
 .header {
     text-align: center;
@@ -48,10 +41,6 @@ body {
     font-size: 1.1rem;
     color: var(--text-muted);
 }
-
-/* ===========================
-   FILTERS
-=========================== */
 
 .filters {
     width: 90%;
@@ -97,9 +86,6 @@ body {
     margin-right: 6px;
 }
 
-/* ===========================
-   BUTTONS
-=========================== */
 
 .btn {
     margin-top: 10px;
@@ -127,9 +113,6 @@ body {
     font-size: 0.9rem;
 }
 
-/* ===========================
-   ARTIST CARDS
-=========================== */
 
 .cards {
     margin: 40px auto;
@@ -179,9 +162,6 @@ body {
     color: var(--text-muted);
 }
 
-/* ===========================
-   DIVIDER
-=========================== */
 
 .divider {
     width: 90%;
