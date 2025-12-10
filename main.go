@@ -10,6 +10,9 @@ import (
 )
 
 func main() {
+	// Configuration des routes statiques
+	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
+
 	// Chargement des templates
 	log.Println("📦 Chargement des templates...")
 	if err := handlers.InitTemplates(); err != nil {
