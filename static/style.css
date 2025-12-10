@@ -20,9 +20,17 @@ body {
     margin: 0;
     padding: 0;
     font-family: "Inter", sans-serif;
-    background: var(--bg-anthracite); /* ← Change to var(--bg-black) for full black */
+
+    background: linear-gradient(
+        180deg,
+        #0d0d0d 0%,
+        #121212 40%,
+        #161616 100%
+    );
+
     color: var(--text-main);
 }
+
 
 .header {
     text-align: center;
