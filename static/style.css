@@ -1,37 +1,28 @@
-
-:root {
-    --bg-black: #000000;
-    --bg-anthracite: #111111;
-
-    --card-bg: #1a1a1a;
-    --text-main: #ffffff;
-    --text-muted: #c7c7c7;
-
-    --neon-purple: #a855f7;
-    --neon-pink: #ec4899;
-
-    --border-light: rgba(255, 255, 255, 0.1);
-
-    --radius: 18px;
-}
-
-
+/* ------------------------------
+   BACKGROUND GRADIENT PASTEL
+------------------------------ */
 body {
     margin: 0;
-    padding: 0;
     font-family: "Inter", sans-serif;
-
-    background: linear-gradient(
-        180deg,
-        #0d0d0d 0%,
-        #121212 40%,
-        #161616 100%
-    );
-
-    color: var(--text-main);
+    background: linear-gradient(135deg, #d7b0ff 0%, #9ecbff 100%);
+    color: #2b2b2b;
+    min-height: 100vh;
 }
 
+/* ------------------------------
+   GLASS EFFECT
+------------------------------ */
+.glass {
+    background: rgba(255, 255, 255, 0.25);
+    border-radius: 18px;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+    backdrop-filter: blur(15px);
+}
 
+/* ------------------------------
+   HEADER
+------------------------------ */
 .header {
     text-align: center;
     padding: 40px 20px;
@@ -39,147 +30,128 @@ body {
 
 .title {
     font-size: 3rem;
-    font-weight: 700;
-    background: linear-gradient(90deg, var(--neon-purple), var(--neon-pink));
+    background: linear-gradient(90deg, #a855f7, #ec4899);
     -webkit-background-clip: text;
     color: transparent;
 }
 
 .subtitle {
+    color: #555;
     font-size: 1.1rem;
-    color: var(--text-muted);
 }
 
+/* ------------------------------
+   FILTERS
+------------------------------ */
 .filters {
     width: 90%;
     max-width: 900px;
     margin: 0 auto;
-    background: var(--card-bg);
     padding: 25px;
-    border-radius: var(--radius);
-    border: 1px solid var(--border-light);
-    box-shadow: 0 0 15px rgba(168, 85, 247, 0.1);
 }
 
 .filter-block {
     margin-bottom: 20px;
 }
 
-.filter-block label {
-    font-size: 0.9rem;
-    color: var(--text-muted);
-}
-
 .filter-block input {
     width: 100%;
-    padding: 10px 12px;
-    margin-top: 5px;
-    border-radius: var(--radius);
-    border: 1px solid var(--border-light);
-    background: #0f0f0f;
-    color: var(--text-main);
+    padding: 10px;
+    border-radius: 14px;
+    border: 1px solid rgba(0,0,0,0.1);
+    background: rgba(255,255,255,0.6);
 }
 
-.inline {
-    display: flex;
-    gap: 10px;
-}
-
-.filter-check {
-    margin: 15px 0;
-}
-
-.filter-check input {
-    transform: scale(1.2);
-    margin-right: 6px;
-}
-
-
-.btn {
-    margin-top: 10px;
-    width: 100%;
-    padding: 12px;
-    border-radius: var(--radius);
-    border: none;
-    font-size: 1rem;
-    font-weight: 600;
-    color: white;
-    cursor: pointer;
-
-    background: linear-gradient(90deg, var(--neon-purple), var(--neon-pink));
-    transition: 0.2s;
-}
-
-.btn:hover {
-    filter: brightness(1.2);
-}
-
-.btn.small {
-    margin-top: 15px;
-    padding: 8px 12px;
-    width: auto;
-    font-size: 0.9rem;
-}
-
-
+/* ------------------------------
+   CARDS
+------------------------------ */
 .cards {
     margin: 40px auto;
     width: 90%;
     max-width: 1400px;
-
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(260px,1fr));
     gap: 25px;
 }
 
 .card {
-    background: var(--card-bg);
-    border-radius: var(--radius);
     padding: 20px;
     text-align: center;
-    border: 1px solid var(--border-light);
-    transition: 0.25s;
-
-    box-shadow: 0 0 10px rgba(0,0,0,0.4);
+    transition: 0.3s;
 }
 
-.card:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 0 25px rgba(168, 85, 247, 0.45);
-    border-color: var(--neon-purple);
-}
-
+/* Image */
 .artist-img {
     width: 100%;
     height: 220px;
     object-fit: cover;
-    border-radius: var(--radius);
-    margin-bottom: 15px;
+    border-radius: 14px;
 }
 
+/* Texts */
 .artist-name {
     font-size: 1.4rem;
-    margin: 10px 0;
-    background: linear-gradient(90deg, var(--neon-purple), var(--neon-pink));
+    margin-top: 10px;
+    background: linear-gradient(90deg,#a855f7,#ec4899);
     -webkit-background-clip: text;
     color: transparent;
 }
 
 .artist-info {
     font-size: 0.9rem;
-    color: var(--text-muted);
+    color: #444;
 }
 
+/* ------------------------------
+   BUTTONS + NEON EFFECT
+------------------------------ */
+.btn {
+    margin-top: 10px;
+    padding: 10px;
+    border-radius: 14px;
+    background: linear-gradient(90deg,#a855f7,#ec4899);
+    border: none;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s;
+}
 
+.neon-btn:hover {
+    box-shadow: 0 0 12px #ec4899, 0 0 24px #a855f7;
+    transform: translateY(-3px);
+}
+
+/* Neon hover on cards */
+.neon-hover:hover {
+    box-shadow: 0 0 12px #ec4899, 0 0 22px #a855f7;
+    transform: translateY(-6px);
+}
+
+/* ------------------------------
+   SLIDE UP ANIMATION
+------------------------------ */
+.slide-up {
+    opacity: 0;
+    transform: translateY(25px);
+    animation: slideUp 0.7s ease forwards;
+}
+
+@keyframes slideUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Divider */
 .divider {
-    width: 90%;
+    width: 80%;
     margin: 40px auto;
     border: none;
-    height: 1px;
-    background: linear-gradient(
-        90deg, 
-        transparent, 
-        var(--neon-purple), 
-        transparent
-    );
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #a855f7, transparent);
+}
+.pulse {
+    box-shadow: 0 0 20px #ff66cc, 0 0 40px #cc33ff !important;
 }

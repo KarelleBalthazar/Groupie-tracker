@@ -4,18 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Groupie Tracker</title>
+
     <link rel="stylesheet" href="/static/style.css">
     <script src="/static/script.js" defer></script>
 </head>
 
 <body>
 
-<header class="header">
+<header class="header slide-up">
     <h1 class="title">🎵 Groupie Tracker</h1>
     <p class="subtitle">Explore the world of music artists & tours</p>
 </header>
 
-<section class="filters">
+<section class="filters glass slide-up">
     <form method="GET">
 
         <!-- RECHERCHE -->
@@ -65,15 +66,15 @@
             </label>
         </div>
 
-        <button class="btn" type="submit">Filtrer</button>
+        <button class="btn neon-btn" type="submit">Filtrer</button>
     </form>
 </section>
 
-<hr class="divider">
+<hr class="divider slide-up">
 
 <section class="cards">
     {{range .Artists}}
-    <div class="card">
+    <div class="card glass neon-hover slide-up">
 
         <img class="artist-img" src="{{.Image}}" alt="{{.Name}}">
 
@@ -83,7 +84,7 @@
         <p class="artist-info">Premier album : {{.FirstAlbum}}</p>
         <p class="artist-info">Membres : {{range .Members}}{{.}}, {{end}}</p>
 
-        <a class="btn small" href="/artist/{{.ID}}">Voir détails</a>
+        <a class="btn small neon-btn" href="/artist/{{.ID}}">Voir détails</a>
     </div>
     {{end}}
 </section>

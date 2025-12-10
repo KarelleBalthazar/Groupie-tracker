@@ -1,10 +1,7 @@
-// Petit effet smooth lors du hover sur les cartes
-document.querySelectorAll(".card").forEach(card => {
-    card.addEventListener("mousemove", e => {
-        const rect = card.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-        card.style.setProperty("--x", `${x}px`);
-        card.style.setProperty("--y", `${y}px`);
-    });
+// Neon click effect
+document.addEventListener("click", (e) => {
+    if (e.target.classList.contains("neon-btn")) {
+        e.target.classList.add("pulse");
+        setTimeout(() => e.target.classList.remove("pulse"), 250);
+    }
 });
