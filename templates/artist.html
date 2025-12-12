@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{.Artist.Name}} — Détails</title>
+    <title>{{.Artist.Name}} — Artiste</title>
 
     <link rel="stylesheet" href="/static/style.css">
     <script src="/static/script.js" defer></script>
@@ -13,44 +13,48 @@
 
     <!-- SIDEBAR -->
     <aside class="sidebar glass">
-        <h2>Artistes</h2>
+        <h2 class="sidebar-title">Artistes</h2>
         <div class="sidebar-list">
-            <a href="/" class="sidebar-item">← Retour</a>
+            <a href="/" class="sidebar-item">← Retour à l'accueil</a>
         </div>
     </aside>
 
+    <!-- CONTENT -->
     <main class="main-content">
 
-        <div class="artist-detail">
+        <!-- HEADER ARTIST -->
+        <section class="artist-header glass">
+            <img class="artist-header-img" src="{{.Artist.Image}}" alt="{{.Artist.Name}}">
+            <div class="artist-header-info">
+                <h1 class="artist-header-name">{{.Artist.Name}}</h1>
 
-            <div class="artist-card glass neon-hover">
+                <p class="artist-header-meta">Création : <strong>{{.Artist.CreationDate}}</strong></p>
+                <p class="artist-header-meta">Premier album : <strong>{{.Artist.FirstAlbum}}</strong></p>
 
-                <img class="artist-img" src="{{.Artist.Image}}" alt="{{.Artist.Name}}">
-
-                <h1 class="artist-name">{{.Artist.Name}}</h1>
-
-                <p class="artist-info">Année de création : {{.Artist.CreationDate}}</p>
-                <p class="artist-info">Premier album : {{.Artist.FirstAlbum}}</p>
-
-                <p class="artist-info">
-                    Membres : {{range $index, $member := .Artist.Members}}{{if $index}}, {{end}}{{$member}}{{end}}
+                <p class="artist-header-meta">
+                    Membres :
+                    <strong>
+                    {{range $i, $m := .Artist.Members}}
+                        {{if $i}}, {{end}}{{$m}}
+                    {{end}}
+                    </strong>
                 </p>
-
             </div>
+        </section>
 
-            <div class="tour-section">
-                <h2 class="title">📍 Concerts & Tournées</h2>
-                <div id="tour-map"></div>
-            </div>
-
-        </div>
+        <!-- MAP SECTION -->
+        <section class="tour-container glass">
+            <h2 class="section-title">📍 Lieux des concerts</h2>
+            <div id="tour-map"></div>
+        </section>
 
     </main>
 
-    <script>
-        const tourData = {{.RelationsJSON}};
-        console.log("Données tournée :", tourData);
-    </script>
+ <!-- Inject JSON -->
+<script>
+    const tourData = JSON.parse(`{{.RelationsJSON}}`);
+    initMap(tourData);
+</script>
 
 </body>
 </html>
