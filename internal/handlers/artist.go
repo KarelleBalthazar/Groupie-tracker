@@ -64,4 +64,5 @@ func Artist(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Erreur template artist.html: %v", err)
 		ServerError(w, r)
 	}
+
 }

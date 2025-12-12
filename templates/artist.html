@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{.Artist.Name}} - Groupie Tracker</title>
+    <title>{{.Artist.Name}} — Détails</title>
 
     <link rel="stylesheet" href="/static/style.css">
     <script src="/static/script.js" defer></script>
@@ -11,50 +11,46 @@
 
 <body>
 
-<!-- HEADER IMAGE / BANNIÈRE ARTISTE -->
-<header class="artist-banner slide-up glass">
-    <img src="{{.Artist.Image}}" alt="{{.Artist.Name}}">
-    <h1 class="artist-title">{{.Artist.Name}}</h1>
-</header>
+    <!-- SIDEBAR -->
+    <aside class="sidebar glass">
+        <h2>Artistes</h2>
+        <div class="sidebar-list">
+            <a href="/" class="sidebar-item">← Retour</a>
+        </div>
+    </aside>
 
-<!-- INFORMATIONS PRINCIPALES -->
-<section class="artist-info glass slide-up">
-    <h2 class="section-title">Informations</h2>
+    <main class="main-content">
 
-    <p><strong>Création :</strong> {{.Artist.CreationDate}}</p>
-    <p><strong>Premier album :</strong> {{.Artist.FirstAlbum}}</p>
+        <div class="artist-detail">
 
-    <h3 class="section-subtitle">Membres</h3>
-    <div class="members">
-        {{range .Artist.Members}}
-            <span class="member-badge">{{.}}</span>
-        {{end}}
-    </div>
-</section>
+            <div class="artist-card glass neon-hover">
 
-<!-- CONCERTS -->
-<section class="concerts glass slide-up">
-    <h2 class="section-title">Concerts</h2>
+                <img class="artist-img" src="{{.Artist.Image}}" alt="{{.Artist.Name}}">
 
-    <div class="concert-grid">
-        {{range $location, $dates := .Relations.DatesLocations}}
-            <div class="concert-card glass neon-hover slide-up">
-                <h3 class="concert-location">{{$location}}</h3>
+                <h1 class="artist-name">{{.Artist.Name}}</h1>
 
-                <ul>
-                    {{range $dates}}
-                        <li>{{.}}</li>
-                    {{end}}
-                </ul>
+                <p class="artist-info">Année de création : {{.Artist.CreationDate}}</p>
+                <p class="artist-info">Premier album : {{.Artist.FirstAlbum}}</p>
+
+                <p class="artist-info">
+                    Membres : {{range $index, $member := .Artist.Members}}{{if $index}}, {{end}}{{$member}}{{end}}
+                </p>
+
             </div>
-        {{end}}
-    </div>
-</section>
 
-<!-- RETOUR -->
-<div class="back-btn-container slide-up">
-    <a href="/" class="btn neon-btn small">← Retour</a>
-</div>
+            <div class="tour-section">
+                <h2 class="title">📍 Concerts & Tournées</h2>
+                <div id="tour-map"></div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <script>
+        const tourData = {{.RelationsJSON}};
+        console.log("Données tournée :", tourData);
+    </script>
 
 </body>
 </html>
