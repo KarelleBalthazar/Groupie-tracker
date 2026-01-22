@@ -9,16 +9,50 @@
 <body>
     <h1>🎵 Groupie Tracker 🎵</h1>
     
-    <!-- Barre de recherche -->
+    <!-- Barre de recherche simple -->
     <div class="search-bar">
-        <input type="text" id="searchInput" placeholder="Rechercher un artiste..." onkeyup="searchArtists()">
+        <input type="text" id="searchInput" placeholder="Rechercher un artiste..." onkeyup="filterArtists()">
+    </div>
+    
+    <!-- Barre de recherche avancée - Style intégré -->
+    <div class="advanced-search">
+        <h3>🔍 Recherche avancée</h3>
+        
+        <div class="filter-group">
+            <div class="filter-item">
+                <label>👥 Membres</label>
+                <select id="membersFilter" onchange="filterArtists()" class="filter-select">
+                    <option value="">Tous</option>
+                    <option value="1">🎤 Solo</option>
+                    <option value="2">👥 Duo</option>
+                    <option value="3">🎸 Trio</option>
+                    <option value="4">🎹 Quatuor</option>
+                    <option value="5">🎵 5+</option>
+                </select>
+            </div>
+            
+            <div class="filter-item">
+                <label>📅 Période</label>
+                <select id="yearFilter" onchange="filterArtists()" class="filter-select">
+                    <option value="">Toutes</option>
+                    <option value="1960">📻 60's</option>
+                    <option value="1970">🕺 70's</option>
+                    <option value="1980">🎸 80's</option>
+                    <option value="1990">📼 90's</option>
+                    <option value="2000">💻 2000+</option>
+                </select>
+            </div>
+        </div>
     </div>
     
     <p>Clique sur un artiste pour voir ses détails !</p>
     
     <div class="artists-grid" id="artistsGrid">
         {{range $index, $artist := .Artists}}
-        <div class="artist-card" data-name="{{lower $artist.Name}}">
+        <div class="artist-card" 
+             data-name="{{lower $artist.Name}}"
+             data-members="{{len $artist.Members}}"
+             data-year="{{$artist.CreationDate}}">
             <a href="/artist/{{$index}}">
                 <img src="{{$artist.Image}}" alt="{{$artist.Name}}" onerror="this.src='https://via.placeholder.com/200x200?text=Pas+de+photo'">
                 <h3>{{$artist.Name}}</h3>
@@ -30,18 +64,36 @@
     </div>
 
     <script>
-    function searchArtists() {
-        const input = document.getElementById('searchInput').value.toLowerCase();
+    function filterArtists() {
+        const searchInput = document.getElementById('searchInput').value.toLowerCase();
+        const membersFilter = document.getElementById('membersFilter').value;
+        const yearFilter = document.getElementById('yearFilter').value;
         const cards = document.getElementsByClassName('artist-card');
         
         for (let card of cards) {
             const name = card.getAttribute('data-name');
-            if (name.includes(input)) {
+            const members = card.getAttribute('data-members');
+            const year = card.getAttribute('data-year');
+            
+            // Vérifie tous les critères
+            const matchSearch = name.includes(searchInput);
+            const matchMembers = !membersFilter || members === membersFilter;
+            const matchYear = !yearFilter || checkYearRange(year, yearFilter);
+            
+            // Affiche uniquement si TOUT correspond
+            if (matchSearch && matchMembers && matchYear) {
                 card.style.display = 'block';
             } else {
                 card.style.display = 'none';
             }
         }
+    }
+    
+    function checkYearRange(year, filter) {
+        if (filter === '2000') return parseInt(year) >= 2000;
+        const start = parseInt(filter);
+        const end = start + 9;
+        return parseInt(year) >= start && parseInt(year) <= end;
     }
     </script>
 </body>
