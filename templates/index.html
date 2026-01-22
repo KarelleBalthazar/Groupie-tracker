@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{.Title}}</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <h1>🎵 Groupie Tracker 🎵</h1>
+    
+    <!-- Barre de recherche -->
+    <div class="search-bar">
+        <input type="text" id="searchInput" placeholder="Rechercher un artiste..." onkeyup="searchArtists()">
+    </div>
+    
+    <p>Clique sur un artiste pour voir ses détails !</p>
+    
+    <div class="artists-grid" id="artistsGrid">
+        {{range $index, $artist := .Artists}}
+        <div class="artist-card" data-name="{{lower $artist.Name}}">
+            <a href="/artist/{{$index}}">
+                <img src="{{$artist.Image}}" alt="{{$artist.Name}}" onerror="this.src='https://via.placeholder.com/200x200?text=Pas+de+photo'">
+                <h3>{{$artist.Name}}</h3>
+                <p>Créé en: {{$artist.CreationDate}}</p>
+                <p>Membres: {{len $artist.Members}}</p>
+            </a>
+        </div>
+        {{end}}
+    </div>
+
+    <script>
+    function searchArtists() {
+        const input = document.getElementById('searchInput').value.toLowerCase();
+        const cards = document.getElementsByClassName('artist-card');
+        
+        for (let card of cards) {
+            const name = card.getAttribute('data-name');
+            if (name.includes(input)) {
+                card.style.display = 'block';
+            } else {
+                card.style.display = 'none';
+            }
+        }
+    }
+    </script>
+</body>
+</html>

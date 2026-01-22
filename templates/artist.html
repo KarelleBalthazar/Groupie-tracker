@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{.Title}}</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="artist-detail">
+        <a href="/" class="back-btn">← Retour</a>
+        
+        <h1>{{.Artist.Name}}</h1>
+        <img src="{{.Artist.Image}}" alt="{{.Artist.Name}}" onerror="this.src='https://via.placeholder.com/300x300?text=Pas+de+photo'">
+        
+        <div class="info">
+            <h2>ℹ️ Informations</h2>
+            <p><strong>Date de création:</strong> {{.Artist.CreationDate}}</p>
+            <p><strong>Premier album:</strong> {{.Artist.FirstAlbum}}</p>
+            
+            <h3>👥 Membres</h3>
+            <ul>
+                {{range .Artist.Members}}
+                <li>{{.}}</li>
+                {{end}}
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
