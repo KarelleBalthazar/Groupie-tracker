@@ -15,6 +15,11 @@ Un site web simple pour explorer les artistes et leurs informations de base.
 - **Frontend** : HTML, CSS
 - **API** : Groupie Trackers API
 
+## Prérequis
+
+- Go 1.16 ou version ultérieure
+
+
 ## Installation
 
 1. Clonez le dépôt :
@@ -25,3 +30,23 @@ Un site web simple pour explorer les artistes et leurs informations de base.
     go run main.go
 
 3. Accédez à l'application à l'adresse : http://localhost:8080
+
+
+**Structure du projet**
+
+
+groupie-tracker/
+├── static/
+│   └── style.css
+├── templates/
+│   ├── index.html
+│   ├── artist.html
+│   └── error.html
+├── internal/
+│   └── app/
+│       ├── app.go
+│       ├── data.go
+│       ├── handlers.go
+│       └── types.go
+├── main.go
+└── README.md
