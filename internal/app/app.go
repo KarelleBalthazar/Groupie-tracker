@@ -9,6 +9,7 @@ func Init() error {
 	fmt.Println("🎵 Démarrage du serveur Groupie Tracker...")
 
 	if err := initTemplates(); err != nil {
+		// Retourner une erreur si le chargement des templates échoue
 		return fmt.Errorf("chargement templates: %v", err)
 	}
 
@@ -17,6 +18,7 @@ func Init() error {
 	}
 
 	http.HandleFunc("/", homeHandler)
+	// Gérer les requêtes pour les pages d'artistes
 	http.HandleFunc("/artist/", artistHandler)
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 

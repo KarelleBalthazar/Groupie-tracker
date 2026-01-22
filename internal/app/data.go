@@ -12,6 +12,7 @@ var artists []Artist
 var filteredArtists []Artist
 
 func loadArtists() error {
+	// Charger les données des artistes depuis l'API
 	url := "https://groupietrackers.herokuapp.com/api/artists"
 
 	resp, err := http.Get(url)
@@ -21,6 +22,7 @@ func loadArtists() error {
 	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
+	// Vérifier les erreurs de lecture
 	if err != nil {
 		return fmt.Errorf("erreur lecture réponse: %v", err)
 	}
